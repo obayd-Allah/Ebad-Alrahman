@@ -26,11 +26,21 @@ jobs:
       - name: Install Android SDK
         run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
-      - name: Extract Android project
+            - name: Find and extract Android project
         run: |
           mkdir build-project
-          unzip -q Fafirru-Mosque-002-Android-Project.zip -d build-project
+          ZIP_FILE=$(find . -maxdepth 2 -type f -iname "*.zip" | head -n 1)
 
+          if [ -z "$ZIP_FILE" ]; then
+            echo "ERROR: No ZIP file was found."
+            echo "Files in repository:"
+            find . -maxdepth 3 -type f -print
+            exit 1
+          fi
+
+          echo "Found ZIP: $ZIP_FILE"
+          unzip -q "$ZIP_FILE" -d build-project
+          
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
