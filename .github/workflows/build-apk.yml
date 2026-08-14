@@ -1,4 +1,4 @@
-name: Build Mosque 002 APK
+name: Build Ebad-Alrahman Mosque 002 APK
 
 on:
   workflow_dispatch:
@@ -24,11 +24,13 @@ jobs:
         uses: android-actions/setup-android@v3
 
       - name: Install Android SDK
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
+        run: |
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Find and extract Android project
         run: |
-          mkdir build-project
+          mkdir -p build-project
+
           ZIP_FILE=$(find . -maxdepth 2 -type f -iname "*.zip" | head -n 1)
 
           if [ -z "$ZIP_FILE" ]; then
@@ -39,7 +41,11 @@ jobs:
           fi
 
           echo "Found ZIP: $ZIP_FILE"
+
           unzip -q "$ZIP_FILE" -d build-project
+
+          echo "===== EXTRACTED PROJECT ====="
+          find build-project -maxdepth 4 -type f -print | sort
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
@@ -48,10 +54,15 @@ jobs:
 
       - name: Build APK
         working-directory: build-project
-        run: gradle assembleDebug --no-daemon
+        run: |
+          echo "===== PROJECT FILES ====="
+          find . -maxdepth 3 -type f | sort
+
+          echo "===== GRADLE BUILD ====="
+          gradle assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Fafirru-Mosque-002-APK
+          name: Ebad-Alrahman-Mosque-002-APK
           path: build-project/app/build/outputs/apk/debug/app-debug.apk 
